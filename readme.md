@@ -1,5 +1,5 @@
 
-# HelloID-Conn-Prov-Source-XTrend
+# HelloID-Conn-Prov-Source-XTend
 
 
 | :information_source: Information                                                                                                                                                                                                                                                                                                                                                       |
@@ -12,20 +12,19 @@
 
 ## Table of contents
 
-- [HelloID-Conn-Prov-Source-X-Trend](#HelloID-Conn-Prov-Source-X-Trend)
+- [HelloID-Conn-Prov-Source-XTend](#helloid-conn-prov-source-xtend)
   - [Table of contents](#table-of-contents)
   - [Introduction](#introduction)
     - [Endpoints](#endpoints)
   - [Getting started](#getting-started)
     - [Connection settings](#connection-settings)
     - [Remarks](#remarks)
-      - [Logic in-depth](#logic-in-depth)
   - [Getting help](#getting-help)
   - [HelloID docs](#helloid-docs)
 
 ## Introduction
 
-_HelloID-Conn-Prov-Source-X-Trend_ is a _source_ connector. The purpose of this connector is to import _persons_ and their _employmentData_.
+_HelloID-Conn-Prov-Source-X-Tend_ is a _source_ connector. The purpose of this connector is to import _persons_ and their _employmentData_.
 
 ### Endpoints
 

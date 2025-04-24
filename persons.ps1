@@ -1,12 +1,12 @@
 ##################################################
-# HelloID-Conn-Prov-Source-XTrend-Persons
+# HelloID-Conn-Prov-Source-XTend-Persons
 #
 # Version: 1.0.0
 ##################################################
 # Initialize default value's
 $config = $configuration | ConvertFrom-Json
 
-function Resolve-XTrendError {
+function Resolve-XTendError {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
@@ -114,23 +114,23 @@ try {
         } catch {
             $ex = $PSItem
             if ($($ex.Exception.GetType().FullName -eq 'Microsoft.PowerShell.Commands.HttpResponseException') -or $($ex.Exception.GetType().FullName -eq 'System.Net.WebException')) {
-                $errorObj = Resolve-XTrendError -ErrorObject $ex
-                Write-Verbose "Could not import X-Trend person [$($person.uname)]. Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.ErrorDetails)"
-                Write-Error "Could not import X-Trend person [$($person.uname)]. Error: $($errorObj.FriendlyMessage)"
+                $errorObj = Resolve-XTendError -ErrorObject $ex
+                Write-Verbose "Could not import X-Tend person [$($person.uname)]. Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.ErrorDetails)"
+                Write-Error "Could not import X-Tend person [$($person.uname)]. Error: $($errorObj.FriendlyMessage)"
             } else {
-                Write-Verbose "Could not import X-Trend person [$($person.uname)]. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
-                Write-Error "Could not import X-Trend person [$($person.uname)]. Error: $($errorObj.FriendlyMessage)"
+                Write-Verbose "Could not import X-Tend person [$($person.uname)]. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
+                Write-Error "Could not import X-Tend person [$($person.uname)]. Error: $($errorObj.FriendlyMessage)"
             }
         }
     }
 } catch {
     $ex = $PSItem
     if ($($ex.Exception.GetType().FullName -eq 'Microsoft.PowerShell.Commands.HttpResponseException') -or $($ex.Exception.GetType().FullName -eq 'System.Net.WebException')) {
-        $errorObj = Resolve-XTrendError -ErrorObject $ex
-        Write-Verbose "Could not import X-Trend persons. Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.FriendlyMessage)"
-        Write-Error "Could not import X-Trend persons. Error: $($errorObj.FriendlyMessage)"
+        $errorObj = Resolve-XTendError -ErrorObject $ex
+        Write-Verbose "Could not import X-Tend persons. Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.FriendlyMessage)"
+        Write-Error "Could not import X-Tend persons. Error: $($errorObj.FriendlyMessage)"
     } else {
-        Write-Verbose "Could not import X-Trend persons. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
-        Write-Error "Could not import X-Trend persons. Error: $($errorObj.FriendlyMessage)"
+        Write-Verbose "Could not import X-Tend persons. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
+        Write-Error "Could not import X-Tend persons. Error: $($errorObj.FriendlyMessage)"
     }
 }
