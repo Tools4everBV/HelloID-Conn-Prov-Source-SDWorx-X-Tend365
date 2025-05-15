@@ -64,7 +64,7 @@ The following settings are required to connect to the API.
 
 > ℹ️ _For more information on how to configure a HelloID PowerShell connector, please refer to our [documentation](https://docs.helloid.com/hc/en-us/articles/360012557600-Configure-a-custom-PowerShell-source-system) pages_
 
-> ℹ️ _If you need help, feel free to ask questions on our [forum](https://forum.helloid.com/forum/helloid-connectors/provisioning/5349-helloid-conn-prov-source-x-tend)_
+> ℹ️ _If you need help, feel free to ask questions on our [forum](https://forum.helloid.com/forum/helloid-connectors/provisioning/5354-helloid-conn-prov-source-sdworx-x-tend365)_
 
 ## HelloID docs
 
