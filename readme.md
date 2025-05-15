@@ -1,6 +1,5 @@
 
-# HelloID-Conn-Prov-Source-XTend
-
+# HelloID-Conn-Prov-Source-SDWorx-X-Tend365
 
 | :information_source: Information                                                                                                                                                                                                                                                                                                                                                       |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -12,7 +11,7 @@
 
 ## Table of contents
 
-- [HelloID-Conn-Prov-Source-XTend](#helloid-conn-prov-source-xtend)
+- [HelloID-Conn-Prov-Source-SDWorx-X-Tend365](#helloid-conn-prov-source-sdworx-x-tend365)
   - [Table of contents](#table-of-contents)
   - [Introduction](#introduction)
     - [Endpoints](#endpoints)
@@ -24,7 +23,7 @@
 
 ## Introduction
 
-_HelloID-Conn-Prov-Source-X-Tend_ is a _source_ connector. The purpose of this connector is to import _persons_ and their _employmentData_.
+_HelloID-Conn-Prov-Source-SDWorx-X-Tend365_ is a _source_ connector. The purpose of this connector is to import _persons_ and their _employmentData_.
 
 ### Endpoints
 
