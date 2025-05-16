@@ -1,5 +1,5 @@
 ##################################################
-# HelloID-Conn-Prov-Source-XTend-Persons
+# HelloID-Conn-Prov-Source-SDWorx-X-Tend365-Persons
 #
 # Version: 1.0.0
 ##################################################
