@@ -3,7 +3,8 @@
 #
 # Version: 1.0.0
 ##################################################
-# Initialize default value's
+
+# Initialize default values
 $config = $configuration | ConvertFrom-Json
 
 function Resolve-XTendError {
@@ -23,7 +24,8 @@ function Resolve-XTendError {
         try {
             $httpErrorObj.ErrorDetails = $ErrorObject.ErrorDetails
             $httpErrorObj.FriendlyMessage = ($httpErrorObj.ErrorDetails | ConvertFrom-Json).error_description
-        } catch {
+        }
+        catch {
             $httpErrorObj.FriendlyMessage = "Received an unexpected response. The JSON could not be converted, error: [$($_.Exception.Message)]. Original error from web service: [$($ErrorObject.Exception.Message)]"
         }
         Write-Output $httpErrorObj
@@ -37,99 +39,93 @@ try {
         'client_secret' = $config.clientSecret
         'resource'      = $config.BaseUrl
     }
+
     $splatGetToken = @{
         Uri    = "https://login.microsoftonline.com/$($config.TenantId)/oauth2/token"
         Method = 'POST'
         Body   = $tokenBody
     }
-    $accessToken = (Invoke-RestMethod @splatGetToken).access_token
 
-    $startDate = (Get-Date).AddDays(-$config.HistoricalDays).ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'")
-    $endDate = (Get-Date).AddDays($config.FutureDays).ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'")
+    $accessToken = (Invoke-RestMethod @splatGetToken).access_token
     $headers = @{
         Authorization = "Bearer $($accessToken)"
         Accept        = 'application/json; charset=utf-8'
     }
     $splatGetUsers = @{
-        Uri     = "$($config.BaseUrl)/data/HelloIdDatas?`$filter=(StartDate le $($startDate) and EndDate ge $($endDate))"
+        Uri     = "$($config.BaseUrl)/data/HelloIdDatas" #?`$filter=(StartDate le $($startDate) and EndDate ge $($endDate))"
         Headers = $headers
         Method  = 'GET'
     }
+
     $persons = ((Invoke-WebRequest @splatGetUsers).content | ConvertFrom-Json).value
     $groupedPersons = $persons | Group-Object -Property PersonnelNumber
 
-    Write-Verbose "Retrieved $($groupedPersons.count) persons from the source system."
-    foreach ($person in $groupedPersons) {
-        try {
-            $contracts = [System.Collections.Generic.List[object]]::new()
-            foreach ($personEntry in $person.Group) {
-                $ShiftContract = @{
-                    externalId               = "$($personEntry.dataAreaId)$($personEntry.PersonnelNumber)$($personEntry.StartDate)"
-                    JobId                    = $personEntry.JobId
-                    JobDescription           = $personEntry.JobDescription
-                    Location                 = $personEntry.Location
-                    LocationCode             = $personEntry.LocationCode
-                    WorkplaceTypeId          = $personEntry.WorkplaceTypeId
-                    WorkplaceTypeDescription = $personEntry.WorkplaceTypeDescription
-                    DepartmentNumber         = $personEntry.DepartmentNumber
-                    DepartmentDescription    = $personEntry.DepartmentDescription
-                    CompanyNumber            = $personEntry.CompanyNumber
-                    HoursPerWeek             = $personEntry.HoursPerWeek
-                    CostCenter               = $personEntry.CostCenter
-                    Manager                  = $personEntry.Manager
-                    startAt                  = $personEntry.StartDate
-                    endAt                    = $personEntry.EndDate
-                }
-                $contracts.Add($ShiftContract)
+    Write-Information "Retrieved $($groupedPersons.count) persons from the source system."
+
+    $today = (Get-Date).Date
+    $futureCutoffDate = $today.AddDays([int]$config.FutureDays).Date
+    $pastCutoffDate = $today.AddDays( - [int]$config.HistoricalDays).Date
+
+    $filteredGroups = foreach ($personGroup in $groupedPersons) {
+        $contracts = $personGroup.Group
+        $includePerson = $false
+
+        foreach ($contract in $contracts) {
+            $startDate = ([datetime]$contract.StartDate).Date
+            $hasEndDate = ($null -ne $contract.EndDate -and -not [string]::IsNullOrWhiteSpace("$($contract.EndDate)"))
+            $endDate = if ($hasEndDate) { ([datetime]$contract.EndDate).Date } else { [datetime]::MaxValue.Date }
+
+            # Active
+            if (($startDate -le $today) -and ($endDate -ge $today)) {
+                $includePerson = $true
+                break
             }
 
-            # Selects the most relevant person, prioritizing the longest active employment.
-            $selectedPerson = $person.group | Select-Object -First 1
-            if ($person.count -gt 1) {
-                $today = (Get-Date).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                $activePersons = $person.group | Where-Object { $_.StartDate -le $today -and ($_.EndDate -ge $today -or $_.EndDate -eq $null) }
-                $selectedPerson = $activePersons | Sort-Object @{Expression = { if ($_.EndDate -eq $null) { [datetime]::MaxValue } else { $_.EndDate } } } -Descending | Select-Object -First 1
+            # Inactive (Pre)
+            if ((-not (($startDate -le $today) -and ($endDate -ge $today))) -and
+                ($startDate -gt $today) -and
+                ($startDate -le $futureCutoffDate)) {
+                $includePerson = $true
+                break
             }
 
-            if ($contracts.Count -gt 0) {
-                $personObj = [PSCustomObject]@{
-                    ExternalId            = $selectedPerson.PersonnelNumber
-                    DisplayName           = $selectedPerson.PersonnelNumber
-                    Initials              = $selectedPerson.Initials
-                    FirstName             = $selectedPerson.FirstName
-                    LastNamePrefix        = $selectedPerson.LastNamePrefix
-                    BirthName             = $selectedPerson.BirthName
-                    KnownAs               = $selectedPerson.KnownAs
-                    PartnerLastNamePrefix = $selectedPerson.PartnerLastNamePrefix
-                    PartnerLastName       = $selectedPerson.PartnerLastName
-                    BirthDate             = $selectedPerson.BirthDate
-                    PrivateEmail          = $selectedPerson.PrivateEmail
-                    ProfessionalEmail     = $selectedPerson.ProfessionalEmail
-                    WorkPhoneNumber       = $selectedPerson.WorkPhoneNumber
-                    WorkMobileNumber      = $selectedPerson.WorkMobileNumber
-                    Contracts             = $contracts
-                }
-                Write-Output $personObj | ConvertTo-Json -Depth 20
-            }
-        } catch {
-            $ex = $PSItem
-            if ($($ex.Exception.GetType().FullName -eq 'Microsoft.PowerShell.Commands.HttpResponseException') -or $($ex.Exception.GetType().FullName -eq 'System.Net.WebException')) {
-                $errorObj = Resolve-XTendError -ErrorObject $ex
-                Write-Verbose "Could not import X-Tend person [$($person.uname)]. Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.ErrorDetails)"
-                Write-Error "Could not import X-Tend person [$($person.uname)]. Error: $($errorObj.FriendlyMessage)"
-            } else {
-                Write-Verbose "Could not import X-Tend person [$($person.uname)]. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
-                Write-Error "Could not import X-Tend person [$($person.uname)]. Error: $($errorObj.FriendlyMessage)"
+            # Inactive (Post)
+            if ($hasEndDate -and
+                ($endDate -lt $today) -and
+                ($endDate -ge $pastCutoffDate)) {
+                $includePerson = $true
+                break
             }
         }
+
+        if ($includePerson) { $personGroup }
     }
-} catch {
+
+    Write-Information "After filter: $($filteredGroups.Count) persons (active / pre[$($config.FutureDays)] / post[$($config.HistoricalDays)])."
+
+    foreach ($person in $filteredGroups) {
+        # Selects the most relevant person, prioritizing the employment with the latest enddate.
+        $selectedPerson = $person.group | Sort-Object @{Expression = { if ($_.EndDate -eq $null) { [datetime]::MaxValue } else { $_.EndDate } } } -Descending | Select-Object -First 1
+
+        $helloIdPerson = $selectedPerson.psobject.Copy()
+        $helloIdPerson | Add-Member -MemberType NoteProperty -Name "ExternalId" -Value $null -Force
+        $helloIdPerson | Add-Member -MemberType NoteProperty -Name "DisplayName" -Value $null -Force
+        $helloIdPerson | Add-Member -MemberType NoteProperty -Name "Contracts" -Value $null -Force
+
+        $helloIdPerson.ExternalId = $helloIdPerson.PersonnelNumber
+        $helloIdPerson.DisplayName = "$($helloIdPerson.PersonnelNumber) ($($helloIdPerson.FirstName) $($helloIdPerson.LastNamePrefix) $($helloIdPerson.BirthName))" 
+        $helloIdPerson.Contracts = $person.group
+        Write-Output $helloIdPerson | ConvertTo-Json -Depth 10
+    }
+}
+catch {
     $ex = $PSItem
     if ($($ex.Exception.GetType().FullName -eq 'Microsoft.PowerShell.Commands.HttpResponseException') -or $($ex.Exception.GetType().FullName -eq 'System.Net.WebException')) {
         $errorObj = Resolve-XTendError -ErrorObject $ex
         Write-Verbose "Could not import X-Tend persons. Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.FriendlyMessage)"
         Write-Error "Could not import X-Tend persons. Error: $($errorObj.FriendlyMessage)"
-    } else {
+    }
+    else {
         Write-Verbose "Could not import X-Tend persons. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
         Write-Error "Could not import X-Tend persons. Error: $($errorObj.FriendlyMessage)"
     }

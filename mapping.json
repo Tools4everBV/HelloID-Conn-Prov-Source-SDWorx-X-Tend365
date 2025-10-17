@@ -1,6 +1,14 @@
 {
     "personMappings": [
         {
+            "name": "Aggregation",
+            "mode": "complex",
+            "value": "function getAggregationValue() {\r\n    let employeeId = source.ExternalId;\r\n    let correlationValue = employeeId;\r\n    if (employeeId.startsWith('20')) {\r\n    // Eigen medewerkers (2039070 -> 39070)\r\n    // verwijder de eerste '2' en daarna alle voorloopnullen\r\n        correlationValue =  '000' + employeeId.slice(2);\r\n    } else if (employeeId.startsWith('21')) {\r\n         correlationValue = '8000' + employeeId.slice(2);\r\n    }  else if (employeeId.startsWith('22')) {\r\n         correlationValue = '9000' + employeeId.slice(2);\r\n    }\r\n    return correlationValue;\r\n}\r\ngetAggregationValue();",
+            "validation": {
+                "required": false
+            }
+        },
+        {
             "name": "Contact.Business.Email",
             "mode": "field",
             "value": "ProfessionalEmail",
@@ -9,36 +17,49 @@
             }
         },
         {
-            "name": "Contact.Business.Phone.Fixed",
-            "mode": "field",
-            "value": "WorkPhoneNumber",
+            "name": "Custom.CorrelationValue",
+            "mode": "complex",
+            "value": "function getCorrelationValue() {\r\n    let employeeId = source.ExternalId;\r\n    let correlationValue = employeeId;\r\n    if (employeeId.startsWith('20')) {\r\n    // Eigen medewerkers (2039070 -> 39070)\r\n    // verwijder de eerste '2' en daarna alle voorloopnullen\r\n        correlationValue =  '000' + employeeId.slice(2);\r\n    } else if (employeeId.startsWith('21')) {\r\n         correlationValue = '8000' + employeeId.slice(2);\r\n    }  else if (employeeId.startsWith('22')) {\r\n         correlationValue = '9000' + employeeId.slice(2);\r\n    }\r\n    return correlationValue;\r\n}\r\ngetCorrelationValue();",
             "validation": {
                 "required": false
-            }
+            },
+            "convertToString": true
         },
         {
-            "name": "Contact.Business.Phone.Mobile",
+            "name": "Custom.employeeNumber",
             "mode": "field",
-            "value": "WorkMobileNumber",
+            "value": "PersonnelNumber",
             "validation": {
                 "required": false
-            }
+            },
+            "convertToString": true
         },
         {
-            "name": "Contact.Personal.Email",
-            "mode": "field",
-            "value": "PrivateEmail",
+            "name": "Custom.FamilyNameFormatted",
+            "mode": "complex",
+            "value": "function getFamilyNameFormatted() {\r\n    let familyNameFormatted = '';\r\n\r\n    switch (source.NameOrderCode) {\r\n        case '00': // default: geboortenaam\r\n        case 'default':\r\n            if (source.LastNamePrefix) {\r\n                familyNameFormatted += source.LastNamePrefix + ' ';\r\n            }\r\n            familyNameFormatted += source.BirthName;\r\n            break;\r\n\r\n        // case 'P':\r\n        //     if (source.PartnerLastNamePrefix) {\r\n        //         familyNameFormatted += source.PartnerLastNamePrefix + ' ';\r\n        //     }\r\n        //     familyNameFormatted += source.PartnerLastName;\r\n        //     break;\r\n\r\n        // case 'BP':\r\n        //     if (source.LastNamePrefix) {\r\n        //         familyNameFormatted += source.LastNamePrefix + ' ';\r\n        //     }\r\n        //     familyNameFormatted += source.BirthName + ' - ';\r\n        //     if (source.PartnerLastNamePrefix) {\r\n        //         familyNameFormatted += source.PartnerLastNamePrefix + ' ';\r\n        //     }\r\n        //     familyNameFormatted += source.PartnerLastName;\r\n        //     break;\r\n\r\n        // case 'PB':\r\n        //     if (source.PartnerLastNamePrefix) {\r\n        //         familyNameFormatted += source.PartnerLastNamePrefix + ' ';\r\n        //     }\r\n        //     familyNameFormatted += source.PartnerLastName + ' - ';\r\n        //     if (source.LastNamePrefix) {\r\n        //         familyNameFormatted += source.LastNamePrefix + ' ';\r\n        //     }\r\n        //     familyNameFormatted += source.BirthName;\r\n        //     break;\r\n    }\r\n\r\n    return familyNameFormatted.trim();\r\n}\r\n\r\ngetFamilyNameFormatted();",
             "validation": {
                 "required": false
-            }
+            },
+            "convertToString": true
         },
         {
-            "name": "Details.BirthDate",
-            "mode": "field",
-            "value": "BirthDate",
+            "name": "Custom.SourceIdentifier",
+            "mode": "fixed",
+            "value": "X-Tend",
             "validation": {
                 "required": false
-            }
+            },
+            "convertToString": true
+        },
+        {
+            "name": "Custom.TypeWerkplekCode",
+            "mode": "field",
+            "value": "WorkplaceTypeId",
+            "validation": {
+                "required": false
+            },
+            "convertToString": true
         },
         {
             "name": "ExternalId",
@@ -49,25 +70,17 @@
             }
         },
         {
+            "name": "Name.Convention",
+            "mode": "complex",
+            "value": "// Let op! In X-Tent is nameOrderCode fixed op 00 (B)\r\nfunction getNamingConvention() {\r\n    let nameOrderCode = source.NameOrderCode;\r\n    let convention = '';\r\n    switch (nameOrderCode) {\r\n        case '00': {convention = 'B'}\r\n        // case '01': {convention = 'BP'}\r\n        // case '02': {convention = 'P'}\r\n        // case '03': {convention = 'PB'}\r\n        default: {convention = 'B'}\r\n    }\r\n    return convention;\r\n}\r\ngetNamingConvention();",
+            "validation": {
+                "required": false
+            }
+        },
+        {
             "name": "Name.FamilyName",
             "mode": "field",
             "value": "BirthName",
-            "validation": {
-                "required": false
-            }
-        },
-        {
-            "name": "Name.FamilyNamePartner",
-            "mode": "field",
-            "value": "PartnerLastName",
-            "validation": {
-                "required": false
-            }
-        },
-        {
-            "name": "Name.FamilyNamePartnerPrefix",
-            "mode": "field",
-            "value": "PartnerLastNamePrefix",
             "validation": {
                 "required": false
             }
@@ -103,24 +116,62 @@
             "validation": {
                 "required": false
             }
-        },
-        {
-            "name": "UserName",
-            "mode": "field",
-            "value": "DisplayName",
-            "validation": {
-                "required": false
-            }
         }
     ],
     "contractMappings": [
         {
-            "name": "CostCenter.Name",
-            "mode": "field",
-            "value": "CostCenter",
+            "name": "Custom.domain",
+            "mode": "complex",
+            "value": "function getDomain()\r\n{\r\n    let domain = '';\r\n    switch(sourceContract.dataAreaId)\r\n    {\r\n        case '6210':\r\n            domain = 'gom.be';\r\n            break;\r\n        default:\r\n            domain = '';\r\n    }\r\n\r\n    return domain;\r\n}\r\n\r\ngetDomain();",
             "validation": {
                 "required": false
-            }
+            },
+            "convertToString": true
+        },
+        {
+            "name": "Custom.EndDateFormatted",
+            "mode": "complex",
+            "value": "function convertDate(date)\r\n{\r\n    let day = date.getDate();\r\n    day = day < 10 ? \"0\" + day : day;\r\n    let month = date.getMonth() + 1;\r\n    month = month < 10 ? \"0\" + month : month;\r\n    let year = date.getFullYear();\r\n    return day + \"-\" + month + \"-\" + year;\r\n}\r\n\r\nfunction dateFormatted(){\r\nlet endDate = sourceContract.EndDate;\r\nlet newDate;\r\n\r\nif (typeof endDate !== 'undefined' && endDate)\r\n{\r\n    const date = new Date(endDate);\r\n    newDate = convertDate(date);\r\n} else \r\n{\r\n    newDate = \"\"\r\n}\r\nreturn newDate;\r\n}\r\n\r\ndateFormatted();",
+            "validation": {
+                "required": false
+            },
+            "convertToString": true
+        },
+        {
+            "name": "Custom.SourceIdentifier",
+            "mode": "fixed",
+            "value": "X-Tend",
+            "validation": {
+                "required": false
+            },
+            "convertToString": true
+        },
+        {
+            "name": "Custom.StartDateFormatted",
+            "mode": "complex",
+            "value": "function convertDate(date)\r\n{\r\n    let day = date.getDate();\r\n    day = day < 10 ? \"0\" + day : day;\r\n    let month = date.getMonth() + 1;\r\n    month = month < 10 ? \"0\" + month : month;\r\n    let year = date.getFullYear();\r\n    return day + \"-\" + month + \"-\" + year;\r\n}\r\n\r\nfunction dateFormatted(){\r\n    let endDate = sourceContract.StartDate;\r\n    let newDate;\r\n\r\n    if (typeof endDate !== 'undefined' && endDate)\r\n    {\r\n        const date = new Date(endDate);\r\n        newDate = convertDate(date);\r\n    } else \r\n    {\r\n        newDate = \"\"\r\n    }\r\n    return newDate;\r\n}\r\n\r\ndateFormatted();",
+            "validation": {
+                "required": false
+            },
+            "convertToString": true
+        },
+        {
+            "name": "Custom.SystemPriority",
+            "mode": "fixed",
+            "value": "11",
+            "validation": {
+                "required": false
+            },
+            "convertToString": true
+        },
+        {
+            "name": "Custom.TypeWerkplekCodeContract",
+            "mode": "complex",
+            "value": "function getValue(){\r\n    return source.WorkplaceTypeId;     \r\n}\r\ngetValue();",
+            "validation": {
+                "required": false
+            },
+            "convertToString": true
         },
         {
             "name": "Department.DisplayName",
@@ -147,49 +198,17 @@
             }
         },
         {
-            "name": "Division.ExternalId",
-            "mode": "field",
-            "value": "WorkplaceTypeId",
-            "validation": {
-                "required": false
-            }
-        },
-        {
-            "name": "Division.Name",
-            "mode": "field",
-            "value": "WorkplaceTypeDescription",
-            "validation": {
-                "required": false
-            }
-        },
-        {
             "name": "EndDate",
             "mode": "field",
-            "value": "endAt",
+            "value": "EndDate",
             "validation": {
                 "required": false
             }
         },
         {
             "name": "ExternalId",
-            "mode": "field",
-            "value": "externalId",
-            "validation": {
-                "required": false
-            }
-        },
-        {
-            "name": "Location.Code",
-            "mode": "field",
-            "value": "LocationCode",
-            "validation": {
-                "required": false
-            }
-        },
-        {
-            "name": "Location.Name",
-            "mode": "field",
-            "value": "Location",
+            "mode": "complex",
+            "value": "function getExternalId() {\r\n    let externalId = '';\r\n    externalId = sourceContract.dataAreaId + '~' + sourceContract.PersonnelNumber + '~' + sourceContract.StartDate;\r\n    return externalId;\r\n}\r\ngetExternalId();",
             "validation": {
                 "required": false
             }
@@ -211,9 +230,25 @@
             }
         },
         {
+            "name": "Organization.ExternalId",
+            "mode": "field",
+            "value": "CompanyNumber",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Organization.Name",
+            "mode": "field",
+            "value": "CompanyNumber",
+            "validation": {
+                "required": false
+            }
+        },
+        {
             "name": "StartDate",
             "mode": "field",
-            "value": "startAt",
+            "value": "StartDate",
             "validation": {
                 "required": false
             }
@@ -230,6 +265,22 @@
             "name": "Title.Name",
             "mode": "field",
             "value": "JobDescription",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Type.Code",
+            "mode": "field",
+            "value": "WorkerType",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Type.Description",
+            "mode": "field",
+            "value": "WorkerType",
             "validation": {
                 "required": false
             }
