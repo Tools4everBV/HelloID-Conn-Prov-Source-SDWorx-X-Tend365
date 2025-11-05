@@ -17,6 +17,22 @@
             }
         },
         {
+            "name": "Name.FamilyNamePartner",
+            "mode": "field",
+            "value": "PartnerLastName",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Name.FamilyNamePartnerPrefix",
+            "mode": "field",
+            "value": "PartnerLastNamePrefix",
+            "validation": {
+                "required": false
+            }
+        },
+        {
             "name": "Name.FamilyName",
             "mode": "field",
             "value": "BirthName",
