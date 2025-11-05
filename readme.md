@@ -51,6 +51,7 @@ The following settings are required to connect to the API.
 | FutureDays | - The number of days in the future from which the shifts will be imported.<br> - Will be converted to a `[DateTime]` object containing the _current date_ __plus__ the number of days specified. | Yes       |
 
 ### Remarks
+
 - The API returns an object for each employment, including the associated person’s data. If a person has multiple employments, the connector uses the person data from the longest active employment.
 
 - The API doesn't return an error when the TokenBaseUrl is invalid.
@@ -63,9 +64,8 @@ The following settings are required to connect to the API.
 
 > ℹ️ _For more information on how to configure a HelloID PowerShell connector, please refer to our [documentation](https://docs.helloid.com/hc/en-us/articles/360012557600-Configure-a-custom-PowerShell-source-system) pages_
 
-> ℹ️ _If you need help, feel free to ask questions on our [forum](https://forum.helloid.com/forum/helloid-connectors/provisioning/5349-helloid-conn-prov-source-x-tend)_
+> ℹ️ _If you need help, feel free to ask questions on our [forum](https://forum.helloid.com/forum/helloid-connectors/provisioning/5354-helloid-conn-prov-source-sdworx-x-tend365)_
 
 ## HelloID docs
 
-The official HelloID documentation can be found at: https://docs.helloid.com/
-
+The official HelloID documentation can be found at: <https://docs.helloid.com/>
