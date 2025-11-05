@@ -1,7 +1,7 @@
 ##################################################
 # HelloID-Conn-Prov-Source-SDWorx-X-Tend365-Persons
 #
-# Version: 1.0.0
+# Version: 1.1.0
 ##################################################
 
 # Initialize default values
@@ -35,8 +35,8 @@ function Resolve-XTendError {
 try {
     $tokenBody = @{
         'grant_type'    = 'client_credentials'
-        'client_id'     = $config.clientId
-        'client_secret' = $config.clientSecret
+        'client_id'     = $config.ClientId
+        'client_secret' = $config.ClientSecret
         'resource'      = $config.BaseUrl
     }
 
@@ -127,6 +127,6 @@ catch {
     }
     else {
         Write-Verbose "Could not import X-Tend persons. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
-        Write-Error "Could not import X-Tend persons. Error: $($errorObj.FriendlyMessage)"
+        Write-Error "Could not import X-Tend persons. Error: $($ex.Exception.Message)"
     }
 }
