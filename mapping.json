@@ -1,182 +1,182 @@
 {
-  "personMappings": [
-    {
-      "name": "Contact.Business.Email",
-      "mode": "field",
-      "value": "ProfessionalEmail",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "ExternalId",
-      "mode": "field",
-      "value": "ExternalId",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Name.FamilyName",
-      "mode": "field",
-      "value": "BirthName",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Name.FamilyNamePrefix",
-      "mode": "field",
-      "value": "LastNamePrefix",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Name.GivenName",
-      "mode": "field",
-      "value": "FirstName",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Name.Initials",
-      "mode": "field",
-      "value": "Initials",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Name.NickName",
-      "mode": "field",
-      "value": "KnownAs",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Name.Convention",
-      "mode": "complex",
-      "value": "// Let op! In X-Tent is nameOrderCode fixed op 00 (B)\r\nfunction getNamingConvention() {\r\n    let nameOrderCode = source.NameOrderCode;\r\n    let convention = '';\r\n    switch (nameOrderCode) {\r\n        case '00': {convention = 'B'}\r\n        // case '01': {convention = 'BP'}\r\n        // case '02': {convention = 'P'}\r\n        // case '03': {convention = 'PB'}\r\n        default: {convention = 'B'}\r\n    }\r\n    return convention;\r\n}\r\ngetNamingConvention();",
-      "validation": {
-        "required": false
-      }
-    }
-  ],
-  "contractMappings": [
-    {
-      "name": "Department.DisplayName",
-      "mode": "field",
-      "value": "DepartmentDescription",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Department.ExternalId",
-      "mode": "field",
-      "value": "DepartmentNumber",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Details.HoursPerWeek",
-      "mode": "field",
-      "value": "HoursPerWeek",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "EndDate",
-      "mode": "field",
-      "value": "EndDate",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "ExternalId",
-      "mode": "complex",
-      "value": "function getExternalId() {\r\n    let externalId = '';\r\n    externalId = sourceContract.dataAreaId + '~' + sourceContract.PersonnelNumber + '~' + sourceContract.StartDate;\r\n    return externalId;\r\n}\r\ngetExternalId();",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Manager.ExternalId",
-      "mode": "field",
-      "value": "Manager",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Organization.Code",
-      "mode": "field",
-      "value": "CompanyNumber",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "StartDate",
-      "mode": "field",
-      "value": "StartDate",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Title.ExternalId",
-      "mode": "field",
-      "value": "JobId",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Title.Name",
-      "mode": "field",
-      "value": "JobDescription",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Organization.ExternalId",
-      "mode": "field",
-      "value": "CompanyNumber",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Organization.Name",
-      "mode": "field",
-      "value": "CompanyNumber",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Type.Code",
-      "mode": "field",
-      "value": "WorkerType",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Type.Description",
-      "mode": "field",
-      "value": "WorkerType",
-      "validation": {
-        "required": false
-      }
-    }
-  ]
+    "personMappings": [
+        {
+            "name": "Contact.Business.Email",
+            "mode": "field",
+            "value": "ProfessionalEmail",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "ExternalId",
+            "mode": "field",
+            "value": "ExternalId",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Name.FamilyName",
+            "mode": "field",
+            "value": "BirthName",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Name.FamilyNamePrefix",
+            "mode": "field",
+            "value": "LastNamePrefix",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Name.GivenName",
+            "mode": "field",
+            "value": "FirstName",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Name.Initials",
+            "mode": "field",
+            "value": "Initials",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Name.NickName",
+            "mode": "field",
+            "value": "KnownAs",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Name.Convention",
+            "mode": "complex",
+            "value": "// Let op! In X-Tent is nameOrderCode fixed op 00 (B)\r\nfunction getNamingConvention() {\r\n    let nameOrderCode = source.NameOrderCode;\r\n    let convention = '';\r\n    switch (nameOrderCode) {\r\n        case '00': {convention = 'B'}\r\n        // case '01': {convention = 'BP'}\r\n        // case '02': {convention = 'P'}\r\n        // case '03': {convention = 'PB'}\r\n        default: {convention = 'B'}\r\n    }\r\n    return convention;\r\n}\r\ngetNamingConvention();",
+            "validation": {
+                "required": false
+            }
+        }
+    ],
+    "contractMappings": [
+        {
+            "name": "Department.DisplayName",
+            "mode": "field",
+            "value": "DepartmentDescription",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Department.ExternalId",
+            "mode": "field",
+            "value": "DepartmentNumber",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Details.HoursPerWeek",
+            "mode": "field",
+            "value": "HoursPerWeek",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "EndDate",
+            "mode": "field",
+            "value": "EndDate",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "ExternalId",
+            "mode": "complex",
+            "value": "function getExternalId() {\r\n    let externalId = '';\r\n    externalId = sourceContract.dataAreaId + '~' + sourceContract.PersonnelNumber + '~' + sourceContract.StartDate;\r\n    return externalId;\r\n}\r\ngetExternalId();",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Manager.ExternalId",
+            "mode": "field",
+            "value": "Manager",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Organization.Code",
+            "mode": "field",
+            "value": "CompanyNumber",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "StartDate",
+            "mode": "field",
+            "value": "StartDate",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Title.ExternalId",
+            "mode": "field",
+            "value": "JobId",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Title.Name",
+            "mode": "field",
+            "value": "JobDescription",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Organization.ExternalId",
+            "mode": "field",
+            "value": "CompanyNumber",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Organization.Name",
+            "mode": "field",
+            "value": "CompanyNumber",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Type.Code",
+            "mode": "field",
+            "value": "WorkerType",
+            "validation": {
+                "required": false
+            }
+        },
+        {
+            "name": "Type.Description",
+            "mode": "field",
+            "value": "WorkerType",
+            "validation": {
+                "required": false
+            }
+        }
+    ]
 }
