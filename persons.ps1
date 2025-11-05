@@ -105,16 +105,25 @@ try {
 
     foreach ($person in $filteredGroups) {
         # Selects the most relevant person, prioritizing the employment with the latest enddate.
-        $selectedPerson = $person.group | Sort-Object @{Expression = { if ($_.EndDate -eq $null) { [datetime]::MaxValue } else { $_.EndDate } } } -Descending | Select-Object -First 1
+        $selectedPerson = $person.Group | Sort-Object @{
+            Expression = { 
+                if ([string]::IsNullOrWhiteSpace("$($_.EndDate)")) { 
+                    [datetime]::MaxValue.Date
+                }
+                else { 
+                    ([datetime]$_.EndDate).Date 
+                } 
+            } 
+        } -Descending | Select-Object -First 1
 
-        $helloIdPerson = $selectedPerson.psobject.Copy()
+        $helloIdPerson = $selectedPerson.PSObject.Copy()
         $helloIdPerson | Add-Member -MemberType NoteProperty -Name "ExternalId" -Value $null -Force
         $helloIdPerson | Add-Member -MemberType NoteProperty -Name "DisplayName" -Value $null -Force
         $helloIdPerson | Add-Member -MemberType NoteProperty -Name "Contracts" -Value $null -Force
 
         $helloIdPerson.ExternalId = $helloIdPerson.PersonnelNumber
         $helloIdPerson.DisplayName = "$($helloIdPerson.PersonnelNumber) ($($helloIdPerson.FirstName) $($helloIdPerson.LastNamePrefix) $($helloIdPerson.BirthName))" 
-        $helloIdPerson.Contracts = $person.group
+        $helloIdPerson.Contracts = $person.Group
         Write-Output $helloIdPerson | ConvertTo-Json -Depth 10
     }
 }
