@@ -1,7 +1,6 @@
 ##################################################
 # HelloID-Conn-Prov-Source-SDWorx-X-Tend365-Persons
 #
-# Version: 1.1.0
 ##################################################
 
 # Initialize default values
@@ -24,8 +23,7 @@ function Resolve-XTendError {
         try {
             $httpErrorObj.ErrorDetails = $ErrorObject.ErrorDetails
             $httpErrorObj.FriendlyMessage = ($httpErrorObj.ErrorDetails | ConvertFrom-Json).error_description
-        }
-        catch {
+        } catch {
             $httpErrorObj.FriendlyMessage = "Received an unexpected response. The JSON could not be converted, error: [$($_.Exception.Message)]. Original error from web service: [$($ErrorObject.Exception.Message)]"
         }
         Write-Output $httpErrorObj
@@ -35,8 +33,8 @@ function Resolve-XTendError {
 try {
     $tokenBody = @{
         'grant_type'    = 'client_credentials'
-        'client_id'     = $config.ClientId
-        'client_secret' = $config.ClientSecret
+        'client_id'     = $config.clientId
+        'client_secret' = $config.clientSecret
         'resource'      = $config.BaseUrl
     }
 
@@ -57,17 +55,34 @@ try {
         Method  = 'GET'
     }
 
-    $persons = ((Invoke-WebRequest @splatGetUsers).content | ConvertFrom-Json).value
+    $persons = [System.Collections.ArrayList]@()
+    $nextLink = $splatGetUsers.Uri
+
+    do {
+        $splatGetUsers.Uri = $nextLink
+        $response = (Invoke-WebRequest @splatGetUsers).content | ConvertFrom-Json
+
+        if ($response.value) {
+            $persons.AddRange($response.value)
+        }
+
+        $nextLink = $response.'@odata.nextLink'
+    } while ($nextLink)
+
+    Write-Information "Retrieved $($persons.Count) person records from the source system."
     $groupedPersons = $persons | Group-Object -Property PersonnelNumber
 
     Write-Information "Retrieved $($groupedPersons.count) persons from the source system."
 
     $today = (Get-Date).Date
     $futureCutoffDate = $today.AddDays([int]$config.FutureDays).Date
-    $pastCutoffDate = $today.AddDays( - [int]$config.HistoricalDays).Date
+    $pastCutoffDate   = $today.AddDays(-[int]$config.HistoricalDays).Date
 
-    $filteredGroups = foreach ($personGroup in $groupedPersons) {
+    $filteredPersonsCount = 0
+    foreach ($personGroup in $groupedPersons) {
+
         $contracts = $personGroup.Group
+
         $includePerson = $false
 
         foreach ($contract in $contracts) {
@@ -98,43 +113,32 @@ try {
             }
         }
 
-        if ($includePerson) { $personGroup }
-    }
+        if (-not $includePerson) { continue }
 
-    Write-Information "After filter: $($filteredGroups.Count) persons (active / pre[$($config.FutureDays)] / post[$($config.HistoricalDays)])."
-
-    foreach ($person in $filteredGroups) {
+        $filteredPersonsCount++
+               
         # Selects the most relevant person, prioritizing the employment with the latest enddate.
-        $selectedPerson = $person.Group | Sort-Object @{
-            Expression = { 
-                if ([string]::IsNullOrWhiteSpace("$($_.EndDate)")) { 
-                    [datetime]::MaxValue.Date
-                }
-                else { 
-                    ([datetime]$_.EndDate).Date 
-                } 
-            } 
-        } -Descending | Select-Object -First 1
+        $selectedPerson = $personGroup.group | Sort-Object @{Expression = { if ($_.EndDate -eq $null) { [datetime]::MaxValue } else { $_.EndDate } } } -Descending | Select-Object -First 1
 
-        $helloIdPerson = $selectedPerson.PSObject.Copy()
+        $helloIdPerson = $selectedPerson.psobject.Copy()
         $helloIdPerson | Add-Member -MemberType NoteProperty -Name "ExternalId" -Value $null -Force
         $helloIdPerson | Add-Member -MemberType NoteProperty -Name "DisplayName" -Value $null -Force
         $helloIdPerson | Add-Member -MemberType NoteProperty -Name "Contracts" -Value $null -Force
 
         $helloIdPerson.ExternalId = $helloIdPerson.PersonnelNumber
         $helloIdPerson.DisplayName = "$($helloIdPerson.PersonnelNumber) ($($helloIdPerson.FirstName) $($helloIdPerson.LastNamePrefix) $($helloIdPerson.BirthName))" 
-        $helloIdPerson.Contracts = $person.Group
+        $helloIdPerson.Contracts = $personGroup.group
         Write-Output $helloIdPerson | ConvertTo-Json -Depth 10
     }
-}
-catch {
+
+    Write-Information "After filter: $($filteredPersonsCount) persons (active / pre[$($config.FutureDays)] / post[$($config.HistoricalDays)])."
+} catch {
     $ex = $PSItem
     if ($($ex.Exception.GetType().FullName -eq 'Microsoft.PowerShell.Commands.HttpResponseException') -or $($ex.Exception.GetType().FullName -eq 'System.Net.WebException')) {
         $errorObj = Resolve-XTendError -ErrorObject $ex
         Write-Verbose "Could not import X-Tend persons. Error at Line '$($errorObj.ScriptLineNumber)': $($errorObj.Line). Error: $($errorObj.FriendlyMessage)"
         Write-Error "Could not import X-Tend persons. Error: $($errorObj.FriendlyMessage)"
-    }
-    else {
+    } else {
         Write-Verbose "Could not import X-Tend persons. Error at Line '$($ex.InvocationInfo.ScriptLineNumber)': $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
         Write-Error "Could not import X-Tend persons. Error: $($ex.Exception.Message)"
     }
