@@ -50,7 +50,7 @@ try {
         Accept        = 'application/json; charset=utf-8'
     }
     $splatGetUsers = @{
-        Uri     = "$($config.BaseUrl)/data/HelloIdDatas" #?`$filter=(StartDate le $($startDate) and EndDate ge $($endDate))"
+        Uri     = "$($config.BaseUrl)/data/HelloIdDatas" #?`$filter=(StartDate le $($startDate) and EndDate ge $($endDate))" # Startdate moet enddate zijn volgens mij.
         Headers = $headers
         Method  = 'GET'
     }
