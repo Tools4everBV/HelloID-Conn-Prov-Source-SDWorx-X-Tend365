@@ -51,6 +51,7 @@ The following settings are required to connect to the API.
 | FutureDays | - The number of days in the future from which the shifts will be imported.<br> - Will be converted to a `[DateTime]` object containing the _current date_ __plus__ the number of days specified. | Yes       |
 
 ### Remarks
+
 - The API returns an object for each employment, including the associated person’s data. If a person has multiple employments, the connector uses the person data from the longest active employment.
 
 - The API doesn't return an error when the TokenBaseUrl is invalid.
@@ -67,5 +68,4 @@ The following settings are required to connect to the API.
 
 ## HelloID docs
 
-The official HelloID documentation can be found at: https://docs.helloid.com/
-
+The official HelloID documentation can be found at: <https://docs.helloid.com/>
